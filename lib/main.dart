@@ -1,122 +1,527 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+const horizontalMargin4 = SizedBox(width: 4.0);
+const horizontalMargin8 = SizedBox(width: 8.0);
+const horizontalMargin12 = SizedBox(width: 12.0);
+
+const verticalMargin4 = SizedBox(height: 4.0);
+const verticalMargin8 = SizedBox(height: 8.0);
+const verticalMargin12 = SizedBox(height: 12.0);
+const verticalMargin24 = SizedBox(height: 24.0);
+
+const allPadding4 = EdgeInsets.all(4.0);
+const allPadding8 = EdgeInsets.all(8.0);
+const allPadding16 = EdgeInsets.all(16.0);
+const allPadding24 = EdgeInsets.all(24.0);
+
+const horizontalPadding4 = EdgeInsets.symmetric(horizontal: 4.0);
+const horizontalPadding8 = EdgeInsets.symmetric(horizontal: 8.0);
+const horizontalPadding16 = EdgeInsets.symmetric(horizontal: 16.0);
+const horizontalPadding24 = EdgeInsets.symmetric(horizontal: 24.0);
+
+const verticalPadding4 = EdgeInsets.symmetric(vertical: 4.0);
+const verticalPadding8 = EdgeInsets.symmetric(vertical: 8.0);
+const verticalPadding16 = EdgeInsets.symmetric(vertical: 16.0);
+const verticalPadding24 = EdgeInsets.symmetric(vertical: 24.0);
+
+final class DogFoodAppTheme {
+  static const backgroundColor = Color.fromRGBO(248, 249, 250, 1);
+  static const themeBrownColor = Color.fromRGBO(179, 128, 86, 1);
+  static const menuBrownColor = Color.fromRGBO(139, 94, 60, 1);
+  static const primaryButtonTextColor = Color.fromRGBO(0, 77, 64, 1);
+  static const secondaryButtonColor = Colors.amber;
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+void main() {
+  runApp(ExampleApp());
+}
 
-  // This widget is the root of your application.
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return MaterialApp(home: HomePage());
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  var _data = RegistrationData();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(_data.toString()),
+          verticalMargin24,
+          ElevatedButton(
+            onPressed: () async {
+              final result = await Navigator.of(
+                context,
+              ).push(DogRegistration.route(_data));
+              if (mounted && result != null) {
+                setState(() {
+                  _data = result;
+                });
+              }
+            },
+            child: const Text('Register'),
+          ),
+        ],
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+// Model to hold registration data
+class RegistrationData {
+  String dogName = '';
+  String gender = 'Male';
+  String breed = '';
+  int years = 0;
+  int months = 0;
+  double weight = 0.0;
+  String bodyCondition = 'Ideal';
+  String name = '';
+  String email = '';
+  String street = '';
+  String apartment = '';
+  String city = '';
+  String state = '';
+  String zipCode = '';
+  String phoneNumber = '';
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  String toString() {
+    return 'RegistrationData{'
+        'dogName: $dogName, gender: $gender, breed: $breed, '
+        'years: $years, months: $months, weight: $weight, '
+        'bodyCondition: $bodyCondition, name: $name, email: $email, '
+        'street: $street, apartment: $apartment, city: $city, '
+        'state: $state, zipCode: $zipCode, phoneNumber: $phoneNumber'
+        '}';
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class DogRegistration extends StatefulWidget {
+  const DogRegistration._();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  static Route<RegistrationData> route(RegistrationData data) {
+    return MaterialPageRoute(builder: (context) => DogRegistration._());
+  }
+
+  @override
+  State<DogRegistration> createState() => DogRegistrationState();
+}
+
+class DogRegistrationState extends State<DogRegistration> {
+  final _data = RegistrationData();
+  final _title = ValueNotifier<String>('');
+  final _progress = ValueNotifier<double>(0.0);
+
+  final _pages = <Widget>[
+    DogInfoPage(),
+    WeightPage(),
+    OwnerInfoPage(),
+    AddressPage(),
+  ];
+
+  int _pageIndex = 0;
+
+  set title(String value) {
+    _title.value = value;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    updateProgress();
+  }
+
+  void gotoPrevPage() {
+    if (_pageIndex == 0) {
+      Navigator.of(context).pop(null);
+    } else {
+      setState(() => _pageIndex--);
+      updateProgress();
+    }
+  }
+
+  void gotoNextPage() {
+    if (_pageIndex == _pages.length - 1) {
+      Navigator.of(context).pop(_data);
+    } else {
+      setState(() => _pageIndex++);
+      updateProgress();
+    }
+  }
+
+  void updateProgress() {
+    _progress.value = ((1 + _pageIndex) / _pages.length);
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        leading: BackButton(onPressed: gotoPrevPage),
+        title: ValueListenableBuilder(
+          valueListenable: _title,
+          builder: (BuildContext context, String value, Widget? child) {
+            return Text(value);
+          },
+        ),
+        backgroundColor: DogFoodAppTheme.themeBrownColor,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Padding(
+        padding: allPadding16,
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: _progress,
+              builder: (BuildContext context, double value, Widget? child) {
+                return LinearProgressIndicator(
+                  value: value,
+                  borderRadius: BorderRadius.circular(32),
+                  color: DogFoodAppTheme.menuBrownColor,
+                  minHeight: 32,
+                );
+              },
+            ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 450),
+                switchInCurve: Curves.fastOutSlowIn,
+                switchOutCurve: Curves.fastOutSlowIn,
+                child: _pages[_pageIndex],
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+mixin DogRegistrationWizardMixin<T extends StatefulWidget> on State<T> {
+  late DogRegistrationState registrationState;
+
+  RegistrationData get data => registrationState._data;
+
+  String get title;
+
+  @override
+  void initState() {
+    super.initState();
+    registrationState =
+        context.findAncestorStateOfType<DogRegistrationState>()!;
+    scheduleMicrotask(() {
+      registrationState.title = title;
+    });
+  }
+
+  void gotoNextPage() => registrationState.gotoNextPage();
+}
+
+// Page 1: Dog Information
+class DogInfoPage extends StatefulWidget {
+  const DogInfoPage({super.key});
+
+  @override
+  State<DogInfoPage> createState() => _DogInfoPageState();
+}
+
+class _DogInfoPageState extends State<DogInfoPage>
+    with DogRegistrationWizardMixin {
+  @override
+  String get title => 'Dog Information';
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Column(
+        children: [
+          TextFormField(
+            initialValue: data.dogName,
+            decoration: const InputDecoration(labelText: "Dog's Name"),
+            onChanged: (value) => data.dogName = value,
+          ),
+          DropdownButtonFormField<String>(
+            value: data.gender,
+            onChanged: (value) => setState(() => data.gender = value!),
+            items:
+                ['Male', 'Female'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+          ),
+          TextFormField(
+            initialValue: data.breed,
+            decoration: const InputDecoration(labelText: 'Breed'),
+            onChanged: (value) => data.breed = value,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: data.years.toString(),
+                  decoration: const InputDecoration(labelText: 'Years'),
+                  onChanged: (value) => data.years = int.tryParse(value) ?? 0,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  initialValue: data.months.toString(),
+                  decoration: const InputDecoration(labelText: 'Months'),
+                  onChanged: (value) => data.months = int.tryParse(value) ?? 0,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return DogFoodAppTheme.backgroundColor; // Color when pressed
+                }
+                return DogFoodAppTheme.secondaryButtonColor; // Default color
+              }),
+            ),
+            onPressed: gotoNextPage,
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Page 2: Weight & Body Condition
+class WeightPage extends StatefulWidget {
+  const WeightPage({super.key});
+
+  @override
+  State<WeightPage> createState() => _WeightPageState();
+}
+
+class _WeightPageState extends State<WeightPage>
+    with DogRegistrationWizardMixin {
+  @override
+  String get title => 'Weight & Condition';
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Column(
+        children: [
+          TextFormField(
+            initialValue: data.weight.toString(),
+            decoration: const InputDecoration(labelText: 'Weight (kg)'),
+            onChanged: (value) => data.weight = double.tryParse(value) ?? 0.0,
+          ),
+          DropdownButtonFormField<String>(
+            value: data.bodyCondition,
+            onChanged: (value) => data.bodyCondition = value!,
+            items:
+                ['Underweight', 'Ideal', 'Overweight'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return DogFoodAppTheme.backgroundColor; // Color when pressed
+                }
+                return DogFoodAppTheme.secondaryButtonColor; // Default color
+              }),
+            ),
+            onPressed: gotoNextPage,
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Page 3: Owner Info
+class OwnerInfoPage extends StatefulWidget {
+  const OwnerInfoPage({super.key});
+
+  @override
+  State<OwnerInfoPage> createState() => _OwnerInfoPageState();
+}
+
+class _OwnerInfoPageState extends State<OwnerInfoPage>
+    with DogRegistrationWizardMixin {
+  @override
+  String get title => 'Owner Information';
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Column(
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Name'),
+            onChanged: (value) => data.name = value,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Email'),
+            onChanged: (value) => data.email = value,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return DogFoodAppTheme.backgroundColor; // Color when pressed
+                }
+                return DogFoodAppTheme.secondaryButtonColor; // Default color
+              }),
+            ),
+            onPressed: gotoNextPage,
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Page 4: Address & Confirmation
+class AddressPage extends StatefulWidget {
+  const AddressPage({super.key});
+
+  @override
+  State<AddressPage> createState() => _AddressPageState();
+}
+
+class _AddressPageState extends State<AddressPage>
+    with DogRegistrationWizardMixin {
+  void _showConfirmationDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => RegistrationConfirmationDialog(data: data),
+    );
+    gotoNextPage();
+  }
+
+  @override
+  String get title => 'Delivery Address';
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Column(
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Street'),
+            onChanged: (value) => data.street = value,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'City'),
+            onChanged: (value) => data.city = value,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Phone Number'),
+            onChanged: (value) => data.phoneNumber = value,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith<Color>((
+                Set<WidgetState> states,
+              ) {
+                if (states.contains(WidgetState.pressed)) {
+                  return DogFoodAppTheme.backgroundColor; // Color when pressed
+                }
+                return DogFoodAppTheme.secondaryButtonColor; // Default color
+              }),
+            ),
+            onPressed: _showConfirmationDialog,
+            child: const Text('Finish'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class RegistrationConfirmationDialog extends StatelessWidget {
+  const RegistrationConfirmationDialog({super.key, required this.data});
+
+  final RegistrationData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Confirmation'),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: [
+            Text('Dog Name: ${data.dogName}'),
+            Text('Gender: ${data.gender}'),
+            Text('Breed: ${data.breed}'),
+            Text('Age: ${data.years} years, ${data.months} months'),
+            Text('Weight: ${data.weight} kg'),
+            Text('Body Condition: ${data.bodyCondition}'),
+            Text('Name: ${data.name}'),
+            Text('Email: ${data.email}'),
+            Text('Street: ${data.street}'),
+            Text('Apartment: ${data.apartment}'),
+            Text('City: ${data.city}'),
+            Text('State: ${data.state}'),
+            Text('Zip Code: ${data.zipCode}'),
+            Text('Phone Number: ${data.phoneNumber}'),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith<Color>((
+              Set<WidgetState> states,
+            ) {
+              if (states.contains(WidgetState.pressed)) {
+                return DogFoodAppTheme.backgroundColor; // Color when pressed
+              }
+              return DogFoodAppTheme.secondaryButtonColor; // Default color
+            }),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text(
+            'OK',
+            style: TextStyle(color: DogFoodAppTheme.backgroundColor),
+          ),
+        ),
+      ],
     );
   }
 }
